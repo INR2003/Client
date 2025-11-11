@@ -1,51 +1,81 @@
 import React, { useState } from "react";
-import { FaMoon, FaSun } from "react-icons/fa"; // Import icons
+import { FaMoon, FaSun, FaBell, FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 
 const Header = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleMode = () => {
     setIsDarkMode(!isDarkMode);
-    // Optional: Apply dark/light mode to body
     document.body.classList.toggle("dark", !isDarkMode);
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const iconSize = "text-xl"; // Uniform icon size
+
   return (
-    <header className="flex w-screen items-center justify-between px-4 py-2 bg-white dark:bg-gray-800 shadow-md transition-colors">
-      {/* Left: Menu button */}
-      <button className="text-2xl text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white">
-        ☰
+    <header className="flex w-screen items-center justify-between px-6 py-3 bg-black border-b border-white shadow-[0_4px_6px_#FFD700] transition-colors">
+      {/* Left: Hamburger / X Button */}
+      <button
+        onClick={toggleSidebar}
+        className="relative w-6 h-6 flex flex-col justify-between items-center mr-4"
+      >
+        <span
+          className={`block h-0.5 w-6 bg-white rounded transform transition duration-300 ease-in-out ${
+            isSidebarOpen ? "rotate-45 translate-y-2" : ""
+          }`}
+        />
+        <span
+          className={`block h-0.5 w-6 bg-white rounded transition duration-300 ease-in-out ${
+            isSidebarOpen ? "opacity-0" : ""
+          }`}
+        />
+        <span
+          className={`block h-0.5 w-6 bg-white rounded transform transition duration-300 ease-in-out ${
+            isSidebarOpen ? "-rotate-45 -translate-y-2" : ""
+          }`}
+        />
       </button>
 
       {/* Center: Logo */}
       <div className="flex-1 flex justify-center">
         <img
-          src="/Assets/clogo - Copy.png"
+          src="https://vtindex.com/img/logo/logo.svg"
           alt="Logo"
           className="h-10 object-contain"
         />
       </div>
 
-      {/* Right: Mode, Profile, Exit */}
-      <div className="flex items-center space-x-4">
+      {/* Right: Notification, Mode, Profile, Exit */}
+      <div className="flex items-center space-x-5">
+        {/* Notification */}
+        <button className={`${iconSize} relative text-white hover:text-yellow-300 transition-colors`}>
+          <FaBell />
+          <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+        </button>
+
         {/* Mode Button */}
         <button
           onClick={toggleMode}
-          className="text-xl text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className={`${iconSize} text-white hover:text-yellow-300 transition-colors`}
         >
           {isDarkMode ? <FaSun /> : <FaMoon />}
         </button>
 
-        {/* Profile Image */}
-        <img
-          src="/Assets/profile.jpg"
-          alt="Profile"
-          className="w-9 h-9 rounded-full border-2 border-gray-300 object-cover"
-        />
+        {/* Profile */}
+        <div className="flex items-center space-x-1">
+          <FaUserCircle className={`${iconSize} text-white`} />
+          <span className="text-white font-medium text-sm">
+            John Doe
+          </span>
+        </div>
 
         {/* Exit Button */}
-        <button className="text-xl text-gray-700 hover:text-red-500 dark:text-gray-200 dark:hover:text-red-400 transition-colors">
-          ⎋
+        <button className={`${iconSize} text-white hover:text-red-500 transition-colors`}>
+          <FaSignOutAlt />
         </button>
       </div>
     </header>
