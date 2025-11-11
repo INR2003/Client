@@ -14,14 +14,15 @@ const Header = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const iconSize = "text-xl"; // Uniform icon size
+  const iconSize = "text-lg md:text-xl"; // Smaller on mobile
 
   return (
-    <header className="flex w-screen items-center justify-between px-6 py-3 bg-black border-b border-white shadow-[0_4px_6px_#FFD700] transition-colors">
+    <header className="flex w-screen items-center justify-between px-4 md:px-6 py-3 bg-black border-b border-white shadow-[0_4px_6px_#FFD700] hover:shadow-[0_0_20px_#FFD700] transition-all duration-300 ease-in-out">
+      
       {/* Left: Hamburger / X Button */}
       <button
         onClick={toggleSidebar}
-        className="relative w-6 h-6 flex flex-col justify-between items-center mr-4"
+        className="relative w-6 h-6 md:w-6 md:h-6 flex flex-col justify-between items-center mr-3 md:mr-4"
       >
         <span
           className={`block h-0.5 w-6 bg-white rounded transform transition duration-300 ease-in-out ${
@@ -45,12 +46,12 @@ const Header = () => {
         <img
           src="https://vtindex.com/img/logo/logo.svg"
           alt="Logo"
-          className="h-10 object-contain"
+          className="h-8 md:h-10 object-contain"
         />
       </div>
 
       {/* Right: Notification, Mode, Profile, Exit */}
-      <div className="flex items-center space-x-5">
+      <div className="flex items-center space-x-3 md:space-x-5">
         {/* Notification */}
         <button className={`${iconSize} relative text-white hover:text-yellow-300 transition-colors`}>
           <FaBell />
@@ -68,7 +69,7 @@ const Header = () => {
         {/* Profile */}
         <div className="flex items-center space-x-1">
           <FaUserCircle className={`${iconSize} text-white`} />
-          <span className="text-white font-medium text-sm">
+          <span className="text-white font-medium text-xs md:text-sm">
             John Doe
           </span>
         </div>
