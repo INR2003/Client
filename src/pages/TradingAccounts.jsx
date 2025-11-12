@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function TradingAccounts({showDepositModal, setShowDepositModal}) {
+export default function TradingAccounts({ showDepositModal, setShowDepositModal }) {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [activeTab, setActiveTab] = useState("cheesepay");
   const [cheeseAmount, setCheeseAmount] = useState("");
@@ -210,17 +210,16 @@ export default function TradingAccounts({showDepositModal, setShowDepositModal})
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`pb-3 px-5 font-semibold text-sm uppercase tracking-wide transition-all duration-300 ${
-                        activeTab === tab
-                          ? "text-[#FFD700] border-b-2 border-[#FFD700]"
-                          : "text-gray-400 hover:text-white"
-                      }`}
+                      className={`pb-3 px-5 font-semibold text-sm uppercase tracking-wide transition-all duration-300 ${activeTab === tab
+                        ? "text-[#FFD700] border-b-2 border-[#FFD700]"
+                        : "text-gray-400 hover:text-white"
+                        }`}
                     >
                       {tab === "cheesepay"
                         ? "CheesePay"
                         : tab === "manual"
-                        ? "Manual Deposit"
-                        : "USDT (TRC20)"}
+                          ? "Manual Deposit"
+                          : "USDT (TRC20)"}
                     </button>
                   ))}
                 </div>
@@ -228,20 +227,14 @@ export default function TradingAccounts({showDepositModal, setShowDepositModal})
                 {/* Deposit Account Select (Common) */}
                 <div className="mb-5">
                   <label className="block text-sm text-gray-400 mb-2">
-                    Select Account
+                    Account ID
                   </label>
-                  <select
-                    value={selectedDepositAccount}
-                    onChange={(e) => setSelectedDepositAccount(e.target.value)}
-                    className="w-full p-3 bg-black border border-[#FFD700] text-white rounded-lg focus:ring-2 focus:ring-[#FFD700] outline-none"
-                  >
-                    <option value="">-- Choose Account --</option>
-                    {accounts.map((acc) => (
-                      <option key={acc.id} value={acc.login}>
-                        {acc.login} — {acc.type}
-                      </option>
-                    ))}
-                  </select>
+                  <input
+                    type="text"
+                    value={selectedDepositAccount || "No account selected"}
+                    readOnly
+                    className="w-full p-3 bg-[#1a1a1a] border border-[#FFD700] text-gray-300 rounded-lg cursor-not-allowed"
+                  />
                 </div>
 
                 {/* Tab Content */}
@@ -249,27 +242,27 @@ export default function TradingAccounts({showDepositModal, setShowDepositModal})
                   {/* CheesePay Section */}
                   {activeTab === "cheesepay" && (
                     <form className="space-y-4">
-                      <div className="flex gap-5 justify-center">
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="cp-currency"
-                            value="USD"
-                            checked={currency === "USD"}
-                            onChange={(e) => setCurrency(e.target.value)}
-                          />
-                          USD
-                        </label>
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="cp-currency"
-                            value="INR"
-                            checked={currency === "INR"}
-                            onChange={(e) => setCurrency(e.target.value)}
-                          />
-                          INR
-                        </label>
+                      {/* Currency Selection (Styled Radios) */}
+                      <div className="flex gap-6 justify-center">
+                        {["USD", "INR"].map((curr) => (
+                          <label
+                            key={curr}
+                            className={`flex items-center gap-2 cursor-pointer select-none ${currency === curr ? "text-[#FFD700]" : "text-gray-400"
+                              }`}
+                          >
+                            <input
+                              type="radio"
+                              name="cp-currency"
+                              value={curr}
+                              checked={currency === curr}
+                              onChange={(e) => setCurrency(e.target.value)}
+                              className="appearance-none w-5 h-5 border-2 border-[#FFD700] rounded-full 
+                   checked:bg-[#FFD700] checked:border-[#FFD700] transition-all duration-200 
+                   focus:outline-none focus:ring-2 focus:ring-[#FFD700]/50"
+                            />
+                            <span className="font-medium">{curr}</span>
+                          </label>
+                        ))}
                       </div>
 
                       <div>
@@ -314,20 +307,52 @@ export default function TradingAccounts({showDepositModal, setShowDepositModal})
                         Details.
                       </p>
 
-                      <div className="flex gap-5 justify-center">
-                        <label className="flex items-center gap-2">
-                          <input type="radio" name="manual-currency" defaultChecked /> USD
-                        </label>
-                        <label className="flex items-center gap-2">
-                          <input type="radio" name="manual-currency" /> INR
-                        </label>
+                      <div className="flex gap-6 justify-center">
+                        {["USD", "INR"].map((curr) => (
+                          <label
+                            key={curr}
+                            className={`flex items-center gap-2 cursor-pointer select-none ${currency === curr ? "text-[#FFD700]" : "text-gray-400"
+                              }`}
+                          >
+                            <input
+                              type="radio"
+                              name="cp-currency"
+                              value={curr}
+                              checked={currency === curr}
+                              onChange={(e) => setCurrency(e.target.value)}
+                              className="appearance-none w-5 h-5 border-2 border-[#FFD700] rounded-full 
+                   checked:bg-[#FFD700] checked:border-[#FFD700] transition-all duration-200 
+                   focus:outline-none focus:ring-2 focus:ring-[#FFD700]/50"
+                            />
+                            <span className="font-medium">{curr}</span>
+                          </label>
+                        ))}
                       </div>
 
-                      <input
-                        type="text"
-                        placeholder="Enter amount"
-                        className="w-full p-3 bg-black border border-[#FFD700] text-white rounded-lg"
-                      />
+                      <div>
+                        <input
+                          type="number"
+                          placeholder="Enter amount"
+                          value={cheeseAmount}
+                          onChange={(e) => setCheeseAmount(e.target.value)}
+                          className="w-full p-3 bg-black border border-[#FFD700] text-white rounded-lg focus:ring-2 focus:ring-[#FFD700] outline-none transition"
+                        />
+                      </div>
+
+                      {currency === "USD" && (
+                        <div>
+                          <label className="block text-sm text-gray-400 mb-1">
+                            Converted (INR)
+                          </label>
+                          <input
+                            type="text"
+                            readOnly
+                            value={convertedAmount ? `₹ ${convertedAmount}` : ""}
+                            placeholder="Auto converted amount"
+                            className="w-full p-3 bg-[#1a1a1a] border border-[#FFD700]/60 text-gray-300 rounded-lg cursor-not-allowed"
+                          />
+                        </div>
+                      )}
 
                       <input
                         type="file"
