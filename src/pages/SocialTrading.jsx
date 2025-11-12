@@ -1,14 +1,19 @@
 import React, { useState } from "react";
-import { Info, X } from "lucide-react";
-import { useNavigate } from "react-router-dom"; // ✅ Add this line
+import {
+  Info,
+  Plus,
+  Users,
+  Settings,
+  CreditCard,
+  Banknote,
+  X,
+} from "lucide-react";
 
-const MAMManager = () => {
-  const [showInfo, setShowInfo] = useState(false);
+export default function MamDashboard() {
   const [showModal, setShowModal] = useState(false);
-  const [animateTitle, setAnimateTitle] = useState(false);
-  const navigate = useNavigate(); // ✅ Hook for navigation
+  const [showInfo, setShowInfo] = useState(false);
+  const [mamAccounts, setMamAccounts] = useState([]);
 
-  // Form data
   const [form, setForm] = useState({
     accountName: "",
     profitPercentage: "",
@@ -30,8 +35,14 @@ const MAMManager = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("✅ New MAM Account Created Successfully!");
-    setShowModal(false);
+
+    const newAccount = {
+      ...form,
+      enabled: true,
+      id: Math.floor(Math.random() * 9000000000) + 1000000000,
+    };
+
+    setMamAccounts((prev) => [...prev, newAccount]);
 
     setForm({
       accountName: "",
@@ -42,100 +53,156 @@ const MAMManager = () => {
       masterPassword: "",
       investorPassword: "",
     });
+    setShowModal(false);
+  };
+
+  // ✅ Toggle Enable/Disable
+  const handleToggleStatus = (id) => {
+    setMamAccounts((prev) =>
+      prev.map((acc) =>
+        acc.id === id ? { ...acc, enabled: !acc.enabled } : acc
+      )
+    );
   };
 
   return (
-    <div className="max-h-[90vh] w-full bg-black text-white flex items-center justify-center p-6 overflow-y-auto">
-      <div className="w-full max-w-5xl mx-auto p-8 relative bg-transparent text-center">
-        {/* Header */}
-        <div className="flex justify-center items-center mb-4 relative">
-          <h1
-            onClick={() => {
-              setAnimateTitle(true);
-              setTimeout(() => setAnimateTitle(false), 1500);
-            }}
-            className={`hidden sm:block text-[25px] font-bold cursor-pointer 
-              ${
-                animateTitle
-                  ? "bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-300 bg-[length:200%_100%] animate-gold-move text-transparent bg-clip-text"
-                  : "text-yellow-400"
-              }`}
-          >
-            Multi-Account Manager
-          </h1>
+    <div className="min-h-screen bg-[#111] text-white flex flex-col items-center py-8 font-sans">
+      {/* Title */}
+      <h2 className="text-2xl font-bold mb-2 text-center">
+        Multi-Account Manager
+      </h2>
 
-          <button
-            onClick={() => setShowInfo(!showInfo)}
-            className="flex items-center gap-1 text-blue-400 hover:text-blue-300 underline font-semibold text-sm absolute right-0 transition-all duration-200"
-          >
-            <Info className="w-4 h-4 text-blue-400" />
-            Know what it is?
-          </button>
+      {/* Info Button */}
+      <div className="flex items-center gap-1 text-sm mb-4">
+        <Info className="w-4 h-4 text-blue-400" />
+        <button
+          onClick={() => setShowInfo(!showInfo)}
+          className="text-blue-400 hover:underline"
+        >
+          Know what it is?
+        </button>
+      </div>
+
+      {/* Info Section */}
+      {showInfo && (
+        <div className="mb-6 bg-gray-900/70 p-6 rounded-md text-gray-300 max-w-2xl text-left">
+          <h3 className="text-lg font-semibold mb-2 text-yellow-400">
+            Understanding MAM Accounts
+          </h3>
+          <p className="text-sm mb-2">
+            <strong>Manager Trades, Auto-Copied:</strong> Trades by the manager
+            are automatically replicated in your investment account.
+          </p>
+          <p className="text-sm mb-3">
+            <strong>Proportional Lot Sizing:</strong> Lot size adjusts based on
+            your account balance relative to the manager's.
+          </p>
+          <ul className="list-disc list-inside text-sm space-y-1 ml-3">
+            <li>Manager trades 1 lot for $10,000.</li>
+            <li>$20,000 Investor → 2 lots.</li>
+            <li>$5,000 Investor → 0.5 lots.</li>
+          </ul>
+          <p className="text-green-400 text-sm mt-3">
+            ✅ <strong>Note:</strong> All trades are copied with a minimum of
+            0.01 lot.
+          </p>
         </div>
+      )}
 
-        {/* Info Box */}
-        {showInfo && (
-          <div className="mb-6 bg-gray-900/70 p-6 rounded-md text-gray-300 max-w-3xl mx-auto text-left transition-all duration-300">
-            <h3 className="text-lg font-semibold mb-2 text-yellow-400">
-              Understanding MAM Accounts
-            </h3>
-            <p className="text-sm mb-2">
-              <strong>Manager Trades, Auto-Copied:</strong> Trades by the manager
-              are automatically replicated in your investment account.
-            </p>
-            <p className="text-sm mb-3">
-              <strong>Proportional Lot Sizing:</strong> Lot size adjusts based on
-              your account balance relative to the manager's.
-            </p>
-            <ul className="list-disc list-inside text-sm space-y-1 ml-3">
-              <li>Manager trades 1 lot for $10,000.</li>
-              <li>$20,000 Investor → 2 lots.</li>
-              <li>$5,000 Investor → 0.5 lots.</li>
-            </ul>
-            <p className="text-green-400 text-sm mt-3">
-              ✅ <strong>Note:</strong> All trades are copied with a minimum of 0.01 lot.
-            </p>
-          </div>
-        )}
+      {/* Main Buttons */}
+      <div className="flex flex-wrap justify-center gap-4 mb-6">
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-[#FFD700] text-black font-semibold py-3 px-5 rounded-md hover:bg-yellow-400 flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" /> Create New MAM Manager Account
+        </button>
+        <button className="bg-[#FFD700] text-black font-semibold py-3 px-5 rounded-md hover:bg-yellow-400 flex items-center gap-2">
+          <Users className="w-4 h-4" /> Invest in a MAM Account
+        </button>
+      </div>
 
-        {/* Buttons */}
-        <div className="flex flex-col sm:flex-row gap-6 justify-center mb-8 mt-[20px]">
-          {/* Create Account Button */}
-          <button
-            className="bg-yellow-400 text-black font-semibold py-3 px-4 rounded-md w-full sm:w-1/2 hover:bg-yellow-300 transition-all duration-200"
-            onClick={() => setShowModal(true)}
-          >
-            + Create New MAM Manager Account
-          </button>
-
-          {/* ✅ Navigate to MAMInvestments page */}
-          <button
-            onClick={() => navigate("/mam-investments")}
-            className="bg-yellow-400 text-black font-semibold py-3 px-4 rounded-md w-full sm:w-1/2 hover:bg-yellow-300 transition-all duration-200"
-          >
-            + Invest in a MAM Account
-          </button>
-        </div>
-
-        {/* No Accounts Box */}
-        <div className="text-center border-2 border-dashed border-yellow-400 rounded-md p-4 mt-4 animate-border-glow">
-          <p className="font-semibold text-[16px] mb-1 text-white">
+      {/* ✅ No Accounts Found - Clickable Box */}
+      {mamAccounts.length === 0 && (
+        <div
+          onClick={() => setShowModal(true)}
+          className="cursor-pointer text-center text-sm text-gray-300 border-2 border-dashed border-yellow-400 rounded-lg py-5 px-6 mb-6 hover:bg-[#222] transition"
+        >
+          <p className="font-semibold text-gray-200 mb-1">
             No MAM Accounts Found
           </p>
-          <p className="text-sm text-gray-300">
-            Click{" "}
-            <span
-              onClick={() => setShowModal(true)}
-              className="text-yellow-400 font-semibold cursor-pointer hover:underline"
-            >
-              “Create New MAM Account”
+          <p>
+            Click the{" "}
+            <span className="text-yellow-400 font-medium underline">
+              "Create New MAM Account"
             </span>{" "}
             to create your first MAM account.
           </p>
         </div>
-      </div>
+      )}
 
-      {/* Modal */}
+      {/* Account Cards */}
+      {mamAccounts.map((acc) => (
+        <div
+          key={acc.id}
+          className="border border-yellow-400 rounded-lg p-5 mb-4 w-[90%] max-w-2xl bg-[#1a1a1a]"
+        >
+          <div className="flex justify-between items-center mb-2">
+            <div>
+              <h3 className="font-bold text-white">
+                {acc.accountName} - MAM
+              </h3>
+              <p className="text-sm text-gray-400">ID : {acc.id}</p>
+            </div>
+            <span
+              className={`text-sm font-semibold ${
+                acc.enabled ? "text-green-400" : "text-red-400"
+              }`}
+            >
+              • {acc.enabled ? "Enabled" : "Disabled"}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 text-center text-sm font-semibold mb-4">
+            <p>
+              Profit Sharing :{" "}
+              <span className="text-yellow-400">{acc.profitPercentage}%</span>
+            </p>
+            <p>
+              Total Profit : <span className="text-yellow-400">$ 0.00</span>
+            </p>
+            <p>
+              Leverage : <span className="text-yellow-400">{acc.leverage}</span>
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3 justify-center">
+            <button className="bg-[#FFD700] text-black font-semibold py-2 px-4 rounded-md flex items-center gap-2 hover:bg-yellow-400">
+              <CreditCard className="w-4 h-4" /> Deposit
+            </button>
+            <button className="bg-[#FFD700] text-black font-semibold py-2 px-4 rounded-md flex items-center gap-2 hover:bg-yellow-400">
+              <Banknote className="w-4 h-4" /> Withdraw
+            </button>
+            <button className="bg-[#FFD700] text-black font-semibold py-2 px-4 rounded-md flex items-center gap-2 hover:bg-yellow-400">
+              <Users className="w-4 h-4" /> Investors
+            </button>
+            <button className="bg-[#FFD700] text-black font-semibold py-2 px-4 rounded-md flex items-center gap-2 hover:bg-yellow-400">
+              <Settings className="w-4 h-4" /> Settings
+            </button>
+            <button
+              onClick={() => handleToggleStatus(acc.id)}
+              className={`${
+                acc.enabled ? "bg-[#FFD700]" : "bg-red-500"
+              } text-black font-semibold py-2 px-4 rounded-md flex items-center gap-2 hover:opacity-80`}
+            >
+              <X className="w-4 h-4 text-red-700" />
+              {acc.enabled ? "Disable" : "Enable"}
+            </button>
+          </div>
+        </div>
+      ))}
+
+      {/* ✅ Modal Form */}
       {showModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg w-[90%] max-w-sm text-left relative overflow-y-auto max-h-[90vh]">
@@ -149,7 +216,6 @@ const MAMManager = () => {
               />
             </div>
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
                 <label className="block text-sm mb-1">Account Name</label>
@@ -284,6 +350,4 @@ const MAMManager = () => {
       )}
     </div>
   );
-};
-
-export default MAMManager;
+}
