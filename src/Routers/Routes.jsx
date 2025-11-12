@@ -11,6 +11,7 @@ import EconomicCalendarWidget from '../pages/EconomicCalendarWidget';
 import Platform from '../pages/Platform';
 import Partnership from '../pages/Partnership';
 import Transactions from '../pages/Transactions';
+import Maminvestments from'../pages/Maminvestments';
 
 const Routers = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -31,6 +32,7 @@ const Routers = () => {
             <Route path="/transactions" element={<Transactions/>} />
             <Route path="/economic-calendar" element={<EconomicCalendarWidget />} />
             <Route path="/support" element={<TermsPage />}  />
+            <Route path="/maminvestments" element={<Maminvestments />}  />
           </Routes>
         </Main>
       </div>
