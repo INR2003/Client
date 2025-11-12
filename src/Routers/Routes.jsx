@@ -14,7 +14,7 @@ import Transactions from '../pages/Transactions';
 
 const Routers = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  const [showDepositModal, setShowDepositModal] = useState(false);
   return (
     <Router>
       <div className='w-screen flex'>
@@ -22,8 +22,8 @@ const Routers = () => {
         <Main isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen}>
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/tradingaccounts" element={<TradingAccounts />} />
+            <Route path="/dashboard" element={<Dashboard showDepositModal={showDepositModal} setShowDepositModal={setShowDepositModal}/>} />
+            <Route path="/tradingaccounts" element={<TradingAccounts showDepositModal={showDepositModal} setShowDepositModal={setShowDepositModal} />} />
             <Route path="/socialtrading" element={<SocialTrading />} />
             <Route path="/partnership" element={<Partnership/>} />
             <Route path="/platform" element={<Platform/>} />
