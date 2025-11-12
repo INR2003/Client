@@ -1,82 +1,119 @@
 import React, { useState } from "react";
+import "./Transactions.css"; // <-- Add this line (we’ll include small CSS fix below)
 
 const Transactions = () => {
-  const [activeTab, setActiveTab] = useState("deposits");
-
-  const tabs = [
-    { key: "deposits", label: "Deposits" },
-    { key: "withdrawals", label: "Withdrawals" },
-    { key: "transfers", label: "Internal Transfers" },
-    { key: "pendings", label: "Pending Transaction" },
-  ];
-
-  const renderTable = (type) => (
-    <div className="bg-black text-white rounded-xl shadow-lg p-4 mb-6">
-      <div className="overflow-x-auto max-h-[420px] rounded-lg">
-        <table className="min-w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-900 text-yellow-400">
-              {type === "transfers" ? (
-                <>
-                  <th className="p-3 border-b border-gray-700">Date/Time</th>
-                  <th className="p-3 border-b border-gray-700">From Account</th>
-                  <th className="p-3 border-b border-gray-700">To Account</th>
-                  <th className="p-3 border-b border-gray-700">Amount (USD)</th>
-                  <th className="p-3 border-b border-gray-700">Note</th>
-                  <th className="p-3 border-b border-gray-700">Status</th>
-                </>
-              ) : (
-                <>
-                  <th className="p-3 border-b border-gray-700">Date/Time</th>
-                  <th className="p-3 border-b border-gray-700">Account ID</th>
-                  <th className="p-3 border-b border-gray-700">Account Name</th>
-                  <th className="p-3 border-b border-gray-700">Amount (USD)</th>
-                  <th className="p-3 border-b border-gray-700">Note</th>
-                  <th className="p-3 border-b border-gray-700">Status</th>
-                </>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td
-                colSpan="6"
-                className="text-center py-4 text-yellow-400 italic"
-              >
-                Loading {type}...
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateRange, setDateRange] = useState("today");
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 transition-all">
-      <h1 className="text-3xl font-bold text-center text-yellow-400 mb-8">
-        Transactions History
-      </h1>
+    <div className="min-h-screen bg-black text-white p-4 sm:p-8">
+      <div className="max-w-6xl mx-auto">
+        {/* Search + Filters */}
+        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-6 flex-wrap w-full">
+          {/* Search Bar - Left Side */}
+          <div className="flex w-full sm:w-auto items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search transactions..."
+              className="flex-1 px-4 py-2 rounded-lg bg-gray-900 text-white border border-gray-700 focus:ring-2 focus:ring-yellow-400 outline-none w-full sm:w-72"
+            />
+            <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-4 py-2 rounded-lg whitespace-nowrap">
+              Search
+            </button>
+          </div>
 
-      {/* Tabs */}
-      <div className="flex bg-gray-800 rounded-xl overflow-hidden mb-6">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`flex-1 py-3 font-semibold transition-all duration-200 ${
-              activeTab === tab.key
-                ? "bg-yellow-400 text-black rounded-lg shadow-md"
-                : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+          {/* Filters - Right Side */}
+          <div className="w-full sm:w-auto overflow-x-auto">
+            <div className="flex flex-wrap justify-center sm:justify-end gap-3 w-full sm:w-auto">
+              {/* Type Filter */}
+              <div className="relative w-full sm:w-auto overflow-hidden">
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="px-3 py-2 text-sm sm:text-base w-full sm:min-w-[150px] max-w-full rounded-lg bg-gray-900 text-white border border-gray-700 focus:ring-2 focus:ring-yellow-400 outline-none appearance-none"
+                >
+                  <option value="all">All Types</option>
+                  <option value="deposit">Deposit</option>
+                  <option value="withdrawal">Withdrawal</option>
+                  <option value="internal">Internal Transfer</option>
+                </select>
+              </div>
+
+              {/* Status Filter */}
+              <div className="relative w-full sm:w-auto overflow-hidden">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-3 py-2 text-sm sm:text-base w-full sm:min-w-[150px] max-w-full rounded-lg bg-gray-900 text-white border border-gray-700 focus:ring-2 focus:ring-yellow-400 outline-none appearance-none"
+                >
+                  <option value="all">All Status</option>
+                  <option value="completed">Completed</option>
+                  <option value="pending">Pending</option>
+                  <option value="failed">Failed</option>
+                </select>
+              </div>
+
+              {/* Date Filter */}
+              <div className="relative w-full sm:w-auto overflow-hidden">
+                <select
+                  value={dateRange}
+                  onChange={(e) => setDateRange(e.target.value)}
+                  className="px-3 py-2 text-sm sm:text-base w-full sm:min-w-[150px] max-w-full rounded-lg bg-gray-900 text-white border border-gray-700 focus:ring-2 focus:ring-yellow-400 outline-none appearance-none"
+                >
+                  <option value="all">All</option>
+                  <option value="today">Today</option>
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
+                  <option value="3months">Last 3 Months</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Transactions Table */}
+        <div className="overflow-x-auto rounded-xl border border-gray-800 shadow-lg bg-gray-900">
+          <table className="w-full border-collapse text-left text-sm sm:text-base">
+            <thead className="bg-gray-800 text-yellow-400">
+              <tr>
+                <th className="p-3 border-b border-gray-700">Date/Time</th>
+
+                {/* Dynamic columns for internal transfers */}
+                {typeFilter === "internal" ? (
+                  <>
+                    <th className="p-3 border-b border-gray-700">
+                      From Account
+                    </th>
+                    <th className="p-3 border-b border-gray-700">
+                      To Account
+                    </th>
+                  </>
+                ) : (
+                  <>
+                    <th className="p-3 border-b border-gray-700">Account ID</th>
+                    <th className="p-3 border-b border-gray-700">
+                      Account Name
+                    </th>
+                  </>
+                )}
+
+                <th className="p-3 border-b border-gray-700">Amount (USD)</th>
+                <th className="p-3 border-b border-gray-700">Note</th>
+                <th className="p-3 border-b border-gray-700">Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr className="text-center">
+                <td colSpan="6" className="py-6 text-gray-400 font-medium">
+                  No transactions found.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      {/* Table */}
-      {renderTable(activeTab)}
     </div>
   );
 };
