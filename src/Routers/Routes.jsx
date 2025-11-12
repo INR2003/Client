@@ -31,6 +31,7 @@ const Routers = () => {
             <Route path="/transactions" element={<Transactions/>} />
             <Route path="/economic-calendar" element={<EconomicCalendarWidget />} />
             <Route path="/support" element={<TermsPage />}  />
+            
           </Routes>
         </Main>
       </div>

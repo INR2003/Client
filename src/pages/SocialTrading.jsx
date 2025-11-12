@@ -7,12 +7,26 @@ import {
   CreditCard,
   Banknote,
   X,
+  RefreshCw,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function MamDashboard() {
   const [showModal, setShowModal] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [mamAccounts, setMamAccounts] = useState([]);
+  const navigate = useNavigate();
+
+  // Function to generate random passwords
+  const generatePassword = () => {
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+    let password = "";
+    for (let i = 0; i < 10; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+  };
 
   const [form, setForm] = useState({
     accountName: "",
@@ -24,6 +38,16 @@ export default function MamDashboard() {
     investorPassword: "",
   });
 
+  // Auto-generate passwords when modal opens
+  const handleOpenModal = () => {
+    setForm((prev) => ({
+      ...prev,
+      masterPassword: generatePassword(),
+      investorPassword: generatePassword(),
+    }));
+    setShowModal(true);
+  };
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.id]: e.target.value });
   };
@@ -31,6 +55,10 @@ export default function MamDashboard() {
   const togglePassword = (fieldId) => {
     const input = document.getElementById(fieldId);
     if (input) input.type = input.type === "password" ? "text" : "password";
+  };
+
+  const regeneratePassword = (field) => {
+    setForm({ ...form, [field]: generatePassword() });
   };
 
   const handleSubmit = (e) => {
@@ -56,7 +84,6 @@ export default function MamDashboard() {
     setShowModal(false);
   };
 
-  // ✅ Toggle Enable/Disable
   const handleToggleStatus = (id) => {
     setMamAccounts((prev) =>
       prev.map((acc) =>
@@ -85,7 +112,7 @@ export default function MamDashboard() {
 
       {/* Info Section */}
       {showInfo && (
-        <div className="mb-6 bg-gray-900/70 p-6 rounded-md text-gray-300 max-w-2xl text-left">
+        <div className="mb-6 bg-gray-900/70 p-6 rounded-md text-gray-300 max-w-3xl w-[90%] text-left">
           <h3 className="text-lg font-semibold mb-2 text-yellow-400">
             Understanding MAM Accounts
           </h3>
@@ -110,23 +137,27 @@ export default function MamDashboard() {
       )}
 
       {/* Main Buttons */}
-      <div className="flex flex-wrap justify-center gap-4 mb-6">
+      <div className="flex flex-wrap justify-center gap-4 mb-6 w-[90%] max-w-5xl">
         <button
-          onClick={() => setShowModal(true)}
-          className="bg-[#FFD700] text-black font-semibold py-3 px-5 rounded-md hover:bg-yellow-400 flex items-center gap-2"
+          onClick={handleOpenModal}
+          className="bg-[#FFD700] text-black font-semibold py-3 px-5 rounded-md hover:bg-yellow-400 flex items-center gap-2 w-full sm:w-auto justify-center"
         >
           <Plus className="w-4 h-4" /> Create New MAM Manager Account
         </button>
-        <button className="bg-[#FFD700] text-black font-semibold py-3 px-5 rounded-md hover:bg-yellow-400 flex items-center gap-2">
+
+        <button
+          onClick={() => navigate("/MAMInvestments")}
+          className="bg-[#FFD700] text-black font-semibold py-3 px-5 rounded-md hover:bg-yellow-400 flex items-center gap-2 w-full sm:w-auto justify-center"
+        >
           <Users className="w-4 h-4" /> Invest in a MAM Account
         </button>
       </div>
 
-      {/* ✅ No Accounts Found - Clickable Box */}
+      {/* No Accounts Found */}
       {mamAccounts.length === 0 && (
         <div
-          onClick={() => setShowModal(true)}
-          className="cursor-pointer text-center text-sm text-gray-300 border-2 border-dashed border-yellow-400 rounded-lg py-5 px-6 mb-6 hover:bg-[#222] transition"
+          onClick={handleOpenModal}
+          className="cursor-pointer text-center text-sm text-gray-300 border-[2.5px] border-dashed border-yellow-400 rounded-lg py-6 px-8 mb-6 w-[90%] max-w-5xl hover:bg-[#222] transition"
         >
           <p className="font-semibold text-gray-200 mb-1">
             No MAM Accounts Found
@@ -145,13 +176,11 @@ export default function MamDashboard() {
       {mamAccounts.map((acc) => (
         <div
           key={acc.id}
-          className="border border-yellow-400 rounded-lg p-5 mb-4 w-[90%] max-w-2xl bg-[#1a1a1a]"
+          className="border-[2.5px] border-yellow-400 rounded-lg p-6 mb-4 w-[90%] max-w-5xl bg-[#1a1a1a]"
         >
           <div className="flex justify-between items-center mb-2">
             <div>
-              <h3 className="font-bold text-white">
-                {acc.accountName} - MAM
-              </h3>
+              <h3 className="font-bold text-white">{acc.accountName} - MAM</h3>
               <p className="text-sm text-gray-400">ID : {acc.id}</p>
             </div>
             <span
@@ -202,10 +231,10 @@ export default function MamDashboard() {
         </div>
       ))}
 
-      {/* ✅ Modal Form */}
+      {/* Modal Form */}
       {showModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg w-[90%] max-w-sm text-left relative overflow-y-auto max-h-[90vh]">
+          <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg w-[90%] max-w-lg text-left relative overflow-y-auto max-h-[90vh] border-[2.5px] border-yellow-400">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-yellow-400">
                 Create New MAM Account
@@ -293,8 +322,7 @@ export default function MamDashboard() {
                     type="password"
                     id="masterPassword"
                     value={form.masterPassword}
-                    onChange={handleChange}
-                    required
+                    readOnly
                     className="w-full p-2 bg-transparent outline-none text-white"
                   />
                   <button
@@ -303,6 +331,14 @@ export default function MamDashboard() {
                     className="px-2 text-yellow-400 hover:text-yellow-300"
                   >
                     👁
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => regeneratePassword("masterPassword")}
+                    className="px-2 text-blue-400 hover:text-blue-300"
+                    title="Regenerate Password"
+                  >
+                    <RefreshCw className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -315,8 +351,7 @@ export default function MamDashboard() {
                     type="password"
                     id="investorPassword"
                     value={form.investorPassword}
-                    onChange={handleChange}
-                    required
+                    readOnly
                     className="w-full p-2 bg-transparent outline-none text-white"
                   />
                   <button
@@ -325,6 +360,14 @@ export default function MamDashboard() {
                     className="px-2 text-yellow-400 hover:text-yellow-300"
                   >
                     👁
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => regeneratePassword("investorPassword")}
+                    className="px-2 text-blue-400 hover:text-blue-300"
+                    title="Regenerate Password"
+                  >
+                    <RefreshCw className="w-4 h-4" />
                   </button>
                 </div>
               </div>
