@@ -14,6 +14,8 @@ import Transactions from '../pages/Transactions';
 import MamInvestments from '../pages/MAMInvestments';
 import ProfilePage from '../pages/Profile';
 import TradingViewFullscreen from '../pages/TradingViewFullscreen';
+import PammAccount from '../pages/PammAccount';
+import DemoAccountsPage from '../pages/DemoAccountsPage';
 
 const Routers = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -37,8 +39,8 @@ const Routers = () => {
             <Route path="/MAMInvestments" element={<MamInvestments />} />
             <Route path="/profile" element={<ProfilePage />}  />
             <Route path="/tradingviewpage" element={<TradingViewFullscreen />}  />
-
-
+            <Route path='demoAccounts' element={<DemoAccountsPage/>}/>
+            <Route path='/PammAccount'element={<PammAccount/>}/>
             </Routes>
         </Main>
       </div>
