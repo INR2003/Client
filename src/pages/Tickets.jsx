@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, Filter, X, Plus } from "lucide-react";
+import { Search, Filter, X, Plus, ChevronDown } from "lucide-react";
 
 const Tickets = () => {
   const [activePage, setActivePage] = useState("view");
@@ -10,6 +10,7 @@ const Tickets = () => {
     priority: "",
     dateRange: "",
   });
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   useEffect(() => {
     const uid =
@@ -28,6 +29,17 @@ const Tickets = () => {
     e.preventDefault();
     alert("Ticket submitted successfully!");
     setActivePage("view");
+  };
+
+  const options = {
+    status: ["Open", "Pending", "Closed"],
+    priority: ["High", "Medium", "Low"],
+    dateRange: ["This Week", "This Month", "Last 3 Months"],
+  };
+
+  const handleSelect = (key, value) => {
+    setFilters({ ...filters, [key]: value });
+    setOpenDropdown(null);
   };
 
   return (
@@ -192,86 +204,72 @@ const Tickets = () => {
       )}
 
       {/* ===================== FILTER MODAL ===================== */}
-      {showFilters && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md p-6 rounded-xl shadow-2xl border border-gray-700 bg-black text-white">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-yellow-400">
-                Filter Tickets
-              </h3>
-              <button
-                onClick={() => setShowFilters(false)}
-                className="text-gray-300 hover:text-white transition"
-              >
-                <X size={20} />
-              </button>
-            </div>
+{showFilters && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-8 overflow-y-auto">
+    <div className="relative w-full max-w-md p-6 rounded-xl shadow-2xl border border-gray-700 bg-black text-white">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-yellow-400">
+          Filter Tickets
+        </h3>
+        <button
+          onClick={() => setShowFilters(false)}
+          className="text-gray-300 hover:text-white transition"
+        >
+          <X size={20} />
+        </button>
+      </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block font-semibold mb-1 text-yellow-400">
-                  Status
-                </label>
-                <select
-                  className="w-full border border-gray-700 bg-gray-900 text-white rounded-md p-2"
-                  value={filters.status}
-                  onChange={(e) =>
-                    setFilters({ ...filters, status: e.target.value })
-                  }
-                >
-                  <option value="">Select</option>
-                  <option>Open</option>
-                  <option>Pending</option>
-                  <option>Closed</option>
-                </select>
+      {/* Custom Dropdowns */}
+      <div className="space-y-4">
+        {["status", "priority", "dateRange"].map((key) => (
+          <div key={key} className="relative">
+            <label className="block font-semibold mb-1 text-yellow-400 capitalize">
+              {key === "dateRange" ? "Date Range" : key}
+            </label>
+
+            <button
+              type="button"
+              onClick={() =>
+                setOpenDropdown(openDropdown === key ? null : key)
+              }
+              className="w-full flex justify-between items-center border border-gray-700 bg-gray-900 text-white rounded-md p-2"
+            >
+              <span>{filters[key] || "Select"}</span>
+              <ChevronDown
+                size={18}
+                className={`transition-transform ${
+                  openDropdown === key ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {openDropdown === key && (
+              <div className="absolute z-20 w-full mt-1 bg-gray-800 border border-gray-700 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                {options[key].map((opt) => (
+                  <div
+                    key={opt}
+                    onClick={() => handleSelect(key, opt)}
+                    className="p-2 hover:bg-gray-700 cursor-pointer"
+                  >
+                    {opt}
+                  </div>
+                ))}
               </div>
-
-              <div>
-                <label className="block font-semibold mb-1 text-yellow-400">
-                  Priority
-                </label>
-                <select
-                  className="w-full border border-gray-700 bg-gray-900 text-white rounded-md p-2"
-                  value={filters.priority}
-                  onChange={(e) =>
-                    setFilters({ ...filters, priority: e.target.value })
-                  }
-                >
-                  <option value="">Select</option>
-                  <option>High</option>
-                  <option>Medium</option>
-                  <option>Low</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-semibold mb-1 text-yellow-400">
-                  Date Range
-                </label>
-                <select
-                  className="w-full border border-gray-700 bg-gray-900 text-white rounded-md p-2"
-                  value={filters.dateRange}
-                  onChange={(e) =>
-                    setFilters({ ...filters, dateRange: e.target.value })
-                  }
-                >
-                  <option value="">Select</option>
-                  <option>This Week</option>
-                  <option>This Month</option>
-                  <option>Last 3 Months</option>
-                </select>
-              </div>
-
-              <button
-                onClick={applyFilters}
-                className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 rounded-md mt-4"
-              >
-                Apply Filters
-              </button>
-            </div>
+            )}
           </div>
-        </div>
-      )}
+        ))}
+
+        <button
+          onClick={applyFilters}
+          className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 rounded-md mt-4"
+        >
+          Apply Filters
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
