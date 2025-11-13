@@ -10,6 +10,7 @@ import {
   Info,
   Home,
   IdCard,
+  Image as ImageIcon,
 } from "lucide-react";
 
 const ProfilePage = () => {
@@ -17,20 +18,18 @@ const ProfilePage = () => {
     name: "John Doe",
     email: "john@example.com",
     phone: "+91 9876543210",
+    dob: "1998-06-15",
   });
 
   const [profileImage, setProfileImage] = useState(null);
-  const [bannerImage, setBannerImage] = useState(
-    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80"
-  );
+  const [bannerImage, setBannerImage] = useState(null);
 
-  // 🔹 Bank & Crypto States
   const [bankDetails, setBankDetails] = useState(null);
   const [cryptoDetails, setCryptoDetails] = useState(null);
   const [showBankModal, setShowBankModal] = useState(false);
   const [showCryptoModal, setShowCryptoModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
-  // 🔹 Identity & Residential Verification States
   const [identityFile, setIdentityFile] = useState(null);
   const [residentialFile, setResidentialFile] = useState(null);
 
@@ -39,19 +38,28 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* 🔶 Banner Section */}
-      <div className="relative w-full h-56 md:h-64">
-        <img
-          src={bannerImage}
-          alt="Banner"
-          className="w-full h-full object-cover rounded-b-2xl"
-        />
+      {/*  Banner Section */}
+      <div className="relative w-full h-56 md:h-64 bg-gray-800 rounded-b-2xl flex items-center justify-center overflow-hidden">
+        {bannerImage ? (
+          <img
+            src={bannerImage}
+            alt="Banner"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="flex flex-col items-center text-gray-500">
+            <ImageIcon size={48} />
+            <p className="text-sm">No Banner Uploaded</p>
+          </div>
+        )}
+
         <button
           onClick={() => document.getElementById("bannerUpload").click()}
           className="absolute top-3 right-3 bg-yellow-400 text-black p-2 rounded-full hover:bg-yellow-500 transition"
         >
           <Pencil size={18} />
         </button>
+
         <input
           type="file"
           id="bannerUpload"
@@ -68,7 +76,7 @@ const ProfilePage = () => {
         />
       </div>
 
-      {/* 👤 Profile Info */}
+      {/*  Profile Info */}
       <div className="relative flex flex-col items-center -mt-16 px-4">
         <div
           className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-yellow-400 shadow-lg cursor-pointer bg-gray-800"
@@ -110,21 +118,24 @@ const ProfilePage = () => {
         <div className="text-center mt-4">
           <div className="flex items-center justify-center gap-2">
             <h2 className="text-2xl font-bold text-yellow-400">{user.name}</h2>
-            <button className="bg-yellow-400 text-black p-1 rounded-full hover:bg-yellow-500">
+            <button
+              onClick={() => setShowEditModal(true)}
+              className="bg-yellow-400 text-black p-1 rounded-full hover:bg-yellow-500"
+            >
               <Pencil size={16} />
             </button>
           </div>
           <p className="text-gray-300">{user.email}</p>
           <p className="text-gray-400">{user.phone}</p>
+          <p className="text-gray-500 text-sm">DOB: {user.dob}</p>
         </div>
       </div>
 
-      {/* 📊 Account Summary */}
+      {/*  Account Summary */}
       <div className="max-w-3xl mx-auto mt-10 grid grid-cols-3 gap-4 text-center px-4">
-        {[
-          { label: "Live Account", value: "2" },
+        {[{ label: "Live Account", value: "2" },
           { label: "Demo Account", value: "4" },
-          { label: "IB Status", value: "Pending" },
+          { label: "IB Status", value: "Pending" }
         ].map((item, i) => (
           <div
             key={i}
@@ -138,7 +149,7 @@ const ProfilePage = () => {
         ))}
       </div>
 
-      {/* 🪪 Identity & 🏠 Residential Verification */}
+      {/*  Identity &  Residential Verification */}
       <div className="max-w-5xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
         {/* Identity Verification */}
         <div className="relative p-6 bg-gray-900 rounded-xl border border-gray-700">
@@ -156,7 +167,6 @@ const ProfilePage = () => {
               </span>
             </div>
           </div>
-
           <div className="flex flex-col items-center justify-center">
             {identityFile ? (
               <div className="text-gray-300 text-center">
@@ -196,7 +206,6 @@ const ProfilePage = () => {
               </span>
             </div>
           </div>
-
           <div className="flex flex-col items-center justify-center">
             {residentialFile ? (
               <div className="text-gray-300 text-center">
@@ -221,9 +230,9 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* 🏦 Bank & Crypto Section */}
+      {/*  Bank & Crypto Section */}
       <div className="max-w-5xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
-        {/* 🏦 Bank Verification */}
+        {/* Bank Verification */}
         <div className="p-6 bg-gray-900 rounded-xl border border-gray-700">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-yellow-400 flex items-center gap-2 text-lg font-semibold">
@@ -233,10 +242,9 @@ const ProfilePage = () => {
               onClick={() => setShowBankModal(true)}
               className="bg-yellow-400 text-black px-4 py-1 rounded-md font-semibold hover:bg-yellow-500"
             >
-              {bankDetails ? "Edit Details" : "Add Details"}
+              {bankDetails ? "Edit" : "Add Details"}
             </button>
           </div>
-
           {bankDetails ? (
             <div className="text-gray-300 space-y-1">
               <p><strong>Bank Name:</strong> {bankDetails.bankName}</p>
@@ -250,7 +258,7 @@ const ProfilePage = () => {
           )}
         </div>
 
-        {/* 💰 Crypto Verification */}
+        {/* Crypto Verification */}
         <div className="p-6 bg-gray-900 rounded-xl border border-gray-700">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-yellow-400 flex items-center gap-2 text-lg font-semibold">
@@ -260,10 +268,9 @@ const ProfilePage = () => {
               onClick={() => setShowCryptoModal(true)}
               className="bg-yellow-400 text-black px-4 py-1 rounded-md font-semibold hover:bg-yellow-500"
             >
-              {cryptoDetails ? "Edit Details" : "Add Details"}
+              {cryptoDetails ? "Edit" : "Add Details"}
             </button>
           </div>
-
           {cryptoDetails ? (
             <div className="text-gray-300 space-y-1">
               <p><strong>Wallet ID:</strong> {cryptoDetails.walletId}</p>
@@ -276,7 +283,7 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* 🏦 Bank Modal */}
+      {/*  Bank Modal */}
       {showBankModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-gray-900 p-6 rounded-xl border border-gray-700 w-full max-w-md relative">
@@ -339,7 +346,7 @@ const ProfilePage = () => {
         </div>
       )}
 
-      {/* 💰 Crypto Modal */}
+      {/*  Crypto Modal */}
       {showCryptoModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-gray-900 p-6 rounded-xl border border-gray-700 w-full max-w-md relative">
@@ -355,14 +362,14 @@ const ProfilePage = () => {
             <div className="space-y-3">
               <input
                 type="text"
-                placeholder="Wallet ID"
+                placeholder="Crypto Wallet ID"
                 defaultValue={cryptoDetails?.walletId || ""}
                 className={inputClass}
                 id="walletId"
               />
               <input
                 type="text"
-                placeholder="Currency (e.g. USDT, BTC)"
+                placeholder="Currency (e.g., BTC, USDT)"
                 defaultValue={cryptoDetails?.currency || ""}
                 className={inputClass}
                 id="currency"
@@ -380,6 +387,60 @@ const ProfilePage = () => {
                 className="mt-4 w-full bg-yellow-400 text-black py-2 rounded-md font-semibold hover:bg-yellow-500"
               >
                 Save Details
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Personal Info Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-gray-900 p-6 rounded-xl border border-gray-700 w-full max-w-md relative">
+            <button
+              onClick={() => setShowEditModal(false)}
+              className="absolute top-3 right-3 text-yellow-400 hover:text-yellow-500"
+            >
+              <X size={20} />
+            </button>
+            <h3 className="text-yellow-400 text-lg font-semibold mb-4">
+              Edit Personal Information
+            </h3>
+            <div className="space-y-3">
+              <input
+                type="email"
+                placeholder="Email"
+                defaultValue={user.email}
+                className={inputClass}
+                id="editEmail"
+              />
+              <input
+                type="text"
+                placeholder="Phone Number"
+                defaultValue={user.phone}
+                className={inputClass}
+                id="editPhone"
+              />
+              <input
+                type="date"
+                placeholder="Date of Birth"
+                defaultValue={user.dob}
+                className={inputClass}
+                id="editDob"
+              />
+              <button
+                onClick={() => {
+                  setUser({
+                    ...user,
+                    email: document.getElementById("editEmail").value,
+                    phone: document.getElementById("editPhone").value,
+                    dob: document.getElementById("editDob").value,
+                  });
+                  setShowEditModal(false);
+                }}
+                className="mt-4 w-full bg-yellow-400 text-black py-2 rounded-md font-semibold hover:bg-yellow-500"
+              >
+                Save Changes
               </button>
             </div>
           </div>
