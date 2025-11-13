@@ -8,7 +8,7 @@ import {
 import { Bell, X, CheckCircle, Info, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const Header = () => {
+const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([
@@ -35,7 +35,10 @@ const Header = () => {
     setIsDarkMode(!isDarkMode);
     document.body.classList.toggle("dark", !isDarkMode);
   };
-
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  }
+  
   const iconSize = "text-lg md:text-xl";
 
   // Mark single notification as read
@@ -62,6 +65,39 @@ const Header = () => {
 
   return (
     <header className="flex h-[10vh] items-center justify-between px-4 md:px-6 py-3 bg-black border-b border-gray-900 shadow-[0_4px_6px_#FFD700] hover:shadow-[0_0_20px_#FFD700] transition-shadow duration-300">
+      
+       <>
+        {/* Mobile / Tablet Button */}
+        <button
+          onClick={toggleSidebar}
+          className="lg:hidden relative w-6 h-6 flex flex-col justify-between items-center mr-3 md:mr-4"
+        >
+          {/* Hamburger animation */}
+          <span className={`block h-0.5 w-6 bg-white rounded transform transition duration-300 ease-in-out ${isSidebarOpen ? "rotate-45 translate-y-2" : ""}`} />
+          <span className={`block h-0.5 w-6 bg-white rounded transition duration-300 ease-in-out ${isSidebarOpen ? "opacity-0" : ""}`} />
+          <span className={`block h-0.5 w-6 bg-white rounded transform transition duration-300 ease-in-out ${isSidebarOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+        </button>
+
+        {/* Desktop Button (example: a simple arrow toggle) */}
+        <button
+          onClick={toggleSidebar}
+          className="hidden lg:flex relative w-6 h-6 flex flex-col justify-between items-center mr-3 md:mr-4"
+        >
+          <span
+            className={`block h-0.5 w-6 bg-white rounded transform transition duration-300 ease-in-out ${!isSidebarOpen ? "rotate-45 translate-y-2" : ""
+              }`}
+          />
+          <span
+            className={`block h-0.5 w-6 bg-white rounded transition duration-300 ease-in-out ${!isSidebarOpen ? "opacity-0" : ""
+              }`}
+          />
+          <span
+            className={`block h-0.5 w-6 bg-white rounded transform transition duration-300 ease-in-out ${!isSidebarOpen ? "-rotate-45 -translate-y-2" : ""
+              }`}
+          />
+        </button>
+      </>
+      
       {/* Center: Logo */}
       <div id="logo" className="flex-1 flex justify-center">
         <Link to="/dashboard">

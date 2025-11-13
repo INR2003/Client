@@ -13,6 +13,7 @@ import Partnership from '../pages/Partnership';
 import Transactions from '../pages/Transactions';
 import MamInvestments from '../pages/MAMInvestments';
 import ProfilePage from '../pages/Profile';
+import TradingViewFullscreen from '../pages/TradingViewFullscreen';
 
 const Routers = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -35,6 +36,7 @@ const Routers = () => {
             <Route path="/support" element={<TermsPage />}  />
             <Route path="/MAMInvestments" element={<MamInvestments />} />
             <Route path="/profile" element={<ProfilePage />}  />
+            <Route path="/tradingviewpage" element={<TradingViewFullscreen />}  />
 
 
             </Routes>
