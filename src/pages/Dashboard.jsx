@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
+import { apiCall } from "../utils/api";
 import {
   UserPlus,
   Wallet,
@@ -330,19 +331,38 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      setStats({
-        live: 2,
-        demo: 3,
-        realBalance: 1560,
-        clients: 5,
-        deposits: 7200,
-        mamFunds: 3000,
-        mamManaged: 5000,
-        ibEarnings: 150,
-        withdrawable: 120,
-      });
-    }, 500);
+    const fetchStats = async () => {
+      try {
+        const data = await apiCall('stats-overview/');
+        setStats({
+          live: data.live_accounts || 0,
+          demo: data.demo_accounts || 0,
+          realBalance: data.real_balance || 0,
+          clients: data.total_clients || 0,
+          deposits: data.total_deposits || 0,
+          mamFunds: data.mam_investments || 0,
+          mamManaged: data.mam_managed_funds || 0,
+          ibEarnings: data.total_earnings || 0,
+          withdrawable: data.commission_balance || 0,
+        });
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+        // Fallback to mock data if API fails
+        setStats({
+          live: 2,
+          demo: 3,
+          realBalance: 1560,
+          clients: 5,
+          deposits: 7200,
+          mamFunds: 3000,
+          mamManaged: 5000,
+          ibEarnings: 150,
+          withdrawable: 120,
+        });
+      }
+    };
+
+    fetchStats();
   }, []);
 
   const openModal = (type) => setActiveModal(type);
