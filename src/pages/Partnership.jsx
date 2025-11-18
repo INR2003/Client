@@ -463,12 +463,20 @@ const App = () => {
           <span className="text-yellow-400 font-semibold text-sm">Referral Link:</span>
           <div className="flex items-center gap-2">
             <span className="text-cyan-400 text-sm break-all">{referralLink || dashboardData.referralLink}</span>
-            <button
-              onClick={() => navigator.clipboard.writeText(referralLink || dashboardData.referralLink)}
-              className="bg-yellow-500 text-black px-2 py-1 rounded text-xs font-semibold hover:bg-yellow-400"
-            >
-              📋 Copy
-            </button>
+            <div className="flex gap-1">
+              <button
+                onClick={() => navigator.clipboard.writeText(referralLink || dashboardData.referralLink)}
+                className="bg-yellow-500 text-black px-2 py-1 rounded text-xs font-semibold hover:bg-yellow-400"
+              >
+                📋 Copy
+              </button>
+              <button
+                onClick={() => window.open(referralLink || dashboardData.referralLink, '_blank')}
+                className="bg-yellow-500 text-black px-2 py-1 rounded text-xs font-semibold hover:bg-yellow-400"
+              >
+                🔗 Open
+              </button>
+            </div>
           </div>
         </div>
       </>
@@ -522,7 +530,7 @@ const App = () => {
         {/* Per Page */}
         <div className="flex items-center gap-2">
           <label className="text-yellow-400 text-sm font-semibold">Per Page:</label>
-          <select className="bg-black text-yellow-300 border border-yellow-500 rounded-md px-2 py-1 focus:outline-none">
+          <select className={`${isDarkMode ? 'bg-black' : 'bg-white'} text-yellow-300 border border-yellow-500 rounded-md px-2 py-1 focus:outline-none`}>
             <option>10</option>
             <option>20</option>
             <option>50</option>
