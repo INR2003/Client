@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Info as InfoIcon, Plus, Users, X } from "lucide-react";
+import { apiRequest } from "./utils/api.js";
 
 // ✔ InfoBox Component
 function InfoBox({ label, value }) {
@@ -75,7 +76,7 @@ export default function MamDashboard() {
     const csrf = getCookie("csrftoken");
 
     try {
-      const response = await fetch("/api/mam-accounts/create/", {
+      const response = await fetch("mam-accounts/create/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
