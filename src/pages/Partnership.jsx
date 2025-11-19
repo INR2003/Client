@@ -2,16 +2,19 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   LayoutDashboard,
   Users,
+  Users2,
   DollarSign,
   CreditCard,
   DownloadCloud,
   Search,
   ChevronLeft,
   ChevronRight,
-  UserPlus
+  UserPlus,
+  FileText
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { apiCall } from '../utils/api';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 // Main Tree Component
 const ClientTree = ({ clients, level = 1 }) => {
@@ -33,6 +36,42 @@ const ClientItem = ({ client, level }) => {
   const [maxHeight, setMaxHeight] = useState('0px');
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [accountDetails, setAccountDetails] = useState({});
+  const [accountDetailsLoading, setAccountDetailsLoading] = useState(false);
+  const [accountDetailsError, setAccountDetailsError] = useState("");
+  const [positionsData, setPositionsData] = useState([]);
+  const [positionsLoading, setPositionsLoading] = useState(false);
+  const [positionsError, setPositionsError] = useState("");
+
+  const fetchPositions = async (accountId) => {
+    setPositionsLoading(true);
+    setPositionsError("");
+    try {
+      const data = await apiCall(`client/api/open-positions/${accountId}/`);
+      console.log("Positions data:", data);
+      setPositionsData(data.positions || []);
+    } catch (err) {
+      console.error("Failed to fetch positions:", err);
+      setPositionsError(err.message || "An error occurred");
+    } finally {
+      setPositionsLoading(false);
+    }
+  };
+
+  const fetchAccountDetails = async (accountId) => {
+    setAccountDetailsLoading(true);
+    setAccountDetailsError("");
+    try {
+      const data = await apiCall(`client/api/account-details/${accountId}/`);
+      console.log("Account details data:", data);
+      setAccountDetails(data);
+    } catch (err) {
+      console.error("Failed to fetch account details:", err);
+      setAccountDetailsError(err.message || "An error occurred");
+    } finally {
+      setAccountDetailsLoading(false);
+    }
+  };
 
   const toggleExpand = () => setIsExpanded((prev) => !prev);
   const openModal = (e) => {
@@ -47,29 +86,8 @@ const ClientItem = ({ client, level }) => {
     }
   }, [isExpanded]);
 
-  // Example accounts
-  const accounts = [
-    {
-      id: "2141713014",
-      type: "demo",
-      group: "group1",
-      lots: 0.01,
-      deposits: "$0.00",
-      withdrawals: "$0.00",
-      commission: "$0.04",
-      transactions: []
-    },
-    {
-      id: "2141713006",
-      type: "standard",
-      group: "group1",
-      lots: 0.04,
-      deposits: "$50.00",
-      withdrawals: "$0.00",
-      commission: "$0.2",
-      transactions: []
-    },
-  ];
+  // Use accounts from client data
+  const accounts = client.accounts || [];
 
   return (
     <div className={`border-b border-yellow-200 rounded-md p-3 ${isDarkMode ? 'bg-black' : 'bg-white'} shadow-sm hover:shadow-lg transition-shadow duration-300`}>
@@ -80,7 +98,7 @@ const ClientItem = ({ client, level }) => {
       >
         {/* Client Info */}
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center w-full">
-          <span className={`${isDarkMode ? 'text-yellow-300' : 'text-black'} font-semibold`}>{client.username}</span>
+          <span className={`${isDarkMode ? 'text-yellow-300' : 'text-black'} font-semibold`}>{client.name}</span>
           <span className={`${isDarkMode ? 'text-yellow-200' : 'text-gray-600'} text-sm`}>{client.email}</span>
           <span className={`${isDarkMode ? 'text-yellow-200' : 'text-gray-600'} text-sm`}>{client.phone}</span>
         </div>
@@ -96,10 +114,10 @@ const ClientItem = ({ client, level }) => {
           >
             View Accounts
           </button>
-          {client.children?.length > 0 && (
-            <span className="text-yellow-400 font-semibold text-sm">
-              {isExpanded ? '▲' : '▼'}
-            </span>
+          {client.clients?.length > 0 && (
+          <span className="text-yellow-400 font-semibold text-sm">
+            {isExpanded ? '▲' : '▼'}
+          </span>
           )}
         </div>
       </div>
@@ -110,8 +128,8 @@ const ClientItem = ({ client, level }) => {
         style={{ maxHeight, transition: 'max-height 0.3s ease', overflow: 'hidden' }}
         className="ml-0 sm:ml-6 mt-2"
       >
-        {isExpanded && client.children?.length > 0 && (
-          <ClientTree clients={client.children} level={level + 1} />
+        {isExpanded && client.clients?.length > 0 && (
+          <ClientTree clients={client.clients} level={level + 1} />
         )}
       </div>
 
@@ -126,7 +144,7 @@ const ClientItem = ({ client, level }) => {
               ✖
             </button>
             <h2 className="text-yellow-300 text-lg font-semibold mb-4">
-              Accounts for {client.username}
+              Accounts for {client.name}
             </h2>
             <table className="w-full text-yellow-200 border border-yellow-500">
               <thead>
@@ -143,20 +161,22 @@ const ClientItem = ({ client, level }) => {
               </thead>
               <tbody>
                 {accounts.map((acc) => (
-                  <tr key={acc.id} className={`border-b border-yellow-500 hover:bg-yellow-500/10 ${isDarkMode ? 'text-white' : 'text-black'}`}>
-                    <td className="px-2 py-1">{acc.id}</td>
-                    <td className="px-2 py-1">{acc.type}</td>
-                    <td className="px-2 py-1">{acc.group}</td>
-                    <td className="px-2 py-1">{acc.lots}</td>
-                    <td className="px-2 py-1">{acc.deposits}</td>
-                    <td className="px-2 py-1">{acc.withdrawals}</td>
-                    <td className="px-2 py-1">{acc.commission}</td>
+                  <tr key={acc.account_id} className={`border-b border-yellow-500 hover:bg-yellow-500/10 ${isDarkMode ? 'text-white' : 'text-black'}`}>
+                    <td className="px-2 py-1">{acc.account_id}</td>
+                    <td className="px-2 py-1">{acc.account_type}</td>
+                    <td className="px-2 py-1">{acc.group_alias}</td>
+                    <td className="px-2 py-1">{acc.total_lots}</td>
+                    <td className="px-2 py-1">{acc.total_deposits}</td>
+                    <td className="px-2 py-1">{acc.total_withdrawals}</td>
+                    <td className="px-2 py-1">{acc.total_commission}</td>
                     <td>
                       <button
                         className="text-yellow-400 cursor-pointer font-semibold"
                         onClick={() => {
                           setSelectedAccount(acc);
                           setIsDetailModalOpen(true);
+                          fetchPositions(acc.account_id);
+                          fetchAccountDetails(acc.account_id);
                         }}
                       >
                         View
@@ -181,9 +201,53 @@ const ClientItem = ({ client, level }) => {
               ✖
             </button>
             <h2 className="text-yellow-300 text-2xl font-bold mb-6 text-center">
-              Details for Account {selectedAccount.id}
+              Account Details for {selectedAccount.account_id}
             </h2>
-            <p className="text-center text-yellow-200">No transactions available</p>
+            {accountDetailsLoading && <p className="text-center text-yellow-200">Loading account details...</p>}
+            {accountDetailsError && <p className="text-center text-red-500">{accountDetailsError}</p>}
+            {!accountDetailsLoading && !accountDetailsError && accountDetails && (
+              <div className="mb-6">
+                <h3 className="text-yellow-300 text-lg font-semibold mb-4">Account Information</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {Object.entries(accountDetails).map(([key, value]) => (
+                    <div key={key} className="flex justify-between">
+                      <span className="text-yellow-200 font-medium">{key.replace(/_/g, ' ').toUpperCase()}:</span>
+                      <span className="text-yellow-300">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <h3 className="text-yellow-300 text-lg font-semibold mb-4">Open Positions</h3>
+            {positionsLoading && <p className="text-center text-yellow-200">Loading positions...</p>}
+            {positionsError && <p className="text-center text-red-500">{positionsError}</p>}
+            {!positionsLoading && !positionsError && positionsData.length === 0 && (
+              <p className="text-center text-yellow-200">No open positions available</p>
+            )}
+            {!positionsLoading && !positionsError && positionsData.length > 0 && (
+              <table className="w-full text-yellow-200 border border-yellow-500">
+                <thead>
+                  <tr className="border-b border-yellow-500">
+                    <th className="px-2 py-1 text-left">Symbol</th>
+                    <th className="px-2 py-1 text-left">Volume</th>
+                    <th className="px-2 py-1 text-left">Price</th>
+                    <th className="px-2 py-1 text-left">Profit</th>
+                    <th className="px-2 py-1 text-left">Type</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {positionsData.map((position, index) => (
+                    <tr key={index} className={`border-b border-yellow-500 hover:bg-yellow-500/10 ${isDarkMode ? 'text-white' : 'text-black'}`}>
+                      <td className="px-2 py-1">{position.symbol}</td>
+                      <td className="px-2 py-1">{position.volume}</td>
+                      <td className="px-2 py-1">{position.price}</td>
+                      <td className="px-2 py-1">{position.profit}</td>
+                      <td className="px-2 py-1">{position.type}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       )}
@@ -222,6 +286,14 @@ const App = () => {
   const [commissionLoading, setCommissionLoading] = useState(false);
   const [error, setError] = useState("");
   const [commissionError, setCommissionError] = useState("");
+  const [clientData, setClientData] = useState([]);
+  const [clientLoading, setClientLoading] = useState(false);
+  const [clientError, setClientError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(20);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalClients, setTotalClients] = useState(0);
 
   const tabs = [
     { name: 'Dashboard', icon: <LayoutDashboard size={16} /> },
@@ -230,44 +302,22 @@ const App = () => {
     { name: 'Withdraw', icon: <DollarSign size={16} /> },
   ];
 
-  const clientData = [
-    {
-      id: 1,
-      username: 'John Doe',
-      email: 'john@example.com',
-      phone: '+1 234 567 890',
-      children: [
-        {
-          id: 2,
-          username: 'Jane Smith',
-          email: 'jane@example.com',
-          phone: '+1 111 222 333',
-          children: [],
-        },
-      ],
-    },
-    {
-      id: 3,
-      username: 'Sarah Lee',
-      email: 'sarah@example.com',
-      phone: '+1 222 333 444',
-      children: [
-        {
-          id: 4,
-          username: 'Tom Clark',
-          email: 'tom@example.com',
-          phone: '+1 777 888 999',
-          children: [],
-        },
-      ],
-    },
-  ];
-
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const data = await apiCall("/ib/stats/");
+        const data = await apiCall("ib/stats/");
         console.log("Dashboard data:", data);
+        // Aggregate earningsPerMonth by month (JAN to DEC), summing totals across years, filling missing months with 0
+        const aggregatedMonthly = {};
+        data.earnings_per_month.forEach(item => {
+          const monthName = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][item.month - 1];
+          if (!aggregatedMonthly[monthName]) aggregatedMonthly[monthName] = 0;
+          aggregatedMonthly[monthName] += item.total;
+        });
+        const allMonths = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+        const aggregatedEarningsPerMonth = allMonths.map(month => ({ month, total: aggregatedMonthly[month] || 0 }));
+        // Sort earningsPerClient by total_commission descending and take top 10
+        const sortedEarningsPerClient = data.earnings_per_client.sort((a, b) => b.total_commission - a.total_commission).slice(0, 10);
         setDashboardData({
           totalClients: data.total_clients,
           directClients: data.direct_clients,
@@ -278,8 +328,8 @@ const App = () => {
           currentMonthVolume: data.current_month_volume_traded,
           totalVolume: data.total_volume_traded,
           referralLink: data.referralLink,
-          earningsPerClient: data.earnings_per_client,
-          earningsPerMonth: data.earnings_per_month,
+          earningsPerClient: sortedEarningsPerClient,
+          earningsPerMonth: aggregatedEarningsPerMonth,
         });
       } catch (err) {
         console.error("Failed to fetch dashboard:", err);
@@ -355,6 +405,34 @@ const App = () => {
       fetchTradingAccounts();
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'Client') {
+      const fetchClientData = async () => {
+        setClientLoading(true);
+        setClientError("");
+        try {
+          const params = new URLSearchParams({
+            page: currentPage,
+            per_page: perPage,
+            ...(searchQuery && { q: searchQuery }),
+          });
+          const data = await apiCall(`client/ib/client-tree/?${params}`);
+          console.log("Client tree data:", data);
+          setClientData(data.clients || []);
+          setTotalPages(data.pagination?.total_pages || 1);
+          setTotalClients(data.pagination?.total || 0);
+        } catch (err) {
+          console.error("Failed to fetch client tree:", err);
+          setClientError(err.message || "An error occurred");
+        } finally {
+          setClientLoading(false);
+        }
+      };
+
+      fetchClientData();
+    }
+  }, [activeTab, currentPage, perPage, searchQuery]);
 
   const handleWithdrawalSubmit = async () => {
     if (!selectedAccount || !amount) {
@@ -437,24 +515,34 @@ const App = () => {
           ))}
         </div>
 
-        {/* Commission Earnings Cards */}
+        {/* Commission Earnings Charts */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-          <div
-            className={`${isDarkMode ? 'bg-black' : 'bg-white'} p-4 rounded-md shadow-md border-2 border-dashed border-yellow-300 border-opacity-50 flex flex-col items-center justify-center text-center transition-all transform hover:scale-105 hover:shadow-[0_0_20px_#FFAA00]`}
-          >
-            <h3 className={`${isDarkMode ? 'text-white' : 'text-black'} font-bold mb-1 text-sm`}>
-              Monthly Commission Earnings
-            </h3>
-            <p className="text-xl font-bold text-yellow-300">--</p>
+          <div className={`${isDarkMode ? 'bg-black' : 'bg-white'} p-4 rounded-md shadow-md border border-yellow-500`}>
+            <h3 className="text-yellow-400 font-bold mb-4 text-center">Monthly Commission Earnings</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={dashboardData.earningsPerMonth}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#FFD700" />
+                <XAxis dataKey="month" stroke="#FFD700" />
+                <YAxis stroke="#FFD700" tickFormatter={(value) => `$${value.toFixed(2)}`} />
+                <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#000' : '#fff', border: '1px solid #FFD700' }} formatter={(value) => [`$${value.toFixed(2)}`, 'Total']} />
+                <Legend />
+                <Line type="monotone" dataKey="total" stroke="#FFD700" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
-          <div
-            className={`${isDarkMode ? 'bg-black' : 'bg-white'} p-4 rounded-md shadow-md border-2 border-dashed border-yellow-300 border-opacity-50 flex flex-col items-center justify-center text-center transition-all transform hover:scale-105 hover:shadow-[0_0_20px_#FFAA00]`}
-          >
-            <h3 className={`${isDarkMode ? 'text-white' : 'text-black'} font-bold mb-1 text-sm`}>
-              Commission Earnings Per Client
-            </h3>
-            <p className="text-yellow-300 text-xs mb-2">Top 10 clients by commission earnings</p>
-            <p className="text-xl font-bold text-yellow-300">--</p>
+          <div className={`${isDarkMode ? 'bg-black' : 'bg-white'} p-4 rounded-md shadow-md border border-yellow-500`}>
+            <h3 className="text-yellow-400 font-bold mb-4 text-center">Commission Earnings Per Client</h3>
+            <p className="text-yellow-300 text-xs mb-2 text-center">Top 10 clients by commission earnings</p>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={dashboardData.earningsPerClient.map(item => ({ name: item.name, total: item.total_commission }))}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#FFD700" />
+                <XAxis dataKey="name" stroke="#FFD700" tick={false} />
+                <YAxis stroke="#FFD700" tickFormatter={(value) => `$${value.toFixed(2)}`} />
+                <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#000' : '#fff', border: '1px solid #FFD700' }} />
+                <Legend />
+                <Bar dataKey="total" fill="#FFD700" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
@@ -494,8 +582,10 @@ const App = () => {
       <div className={`flex items-center gap-2 ${isDarkMode ? 'bg-black' : 'bg-white'} border border-yellow-500 rounded-md px-3 py-2 w-auto max-w-[400px] sm:w-1/2`}>
         <Search size={14} className="text-yellow-500" />
         <input
-          type="text" 
+          type="text"
           placeholder="Search clients..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           className={`${isDarkMode ? 'bg-black text-yellow-300' : 'bg-white text-black'} placeholder-yellow-400 focus:outline-none w-full text-sm py-0.5`}
         />
       </div>
@@ -516,39 +606,51 @@ const App = () => {
     </div>
 
 
-      {/* Client Tab */}
-      {activeTab === 'Client' && (
+      {clientLoading && <p>Loading...</p>}
+      {clientError && <p className="text-red-500">{clientError}</p>}
+      {!clientLoading && !clientError && (
         <>
           <div className={`${isDarkMode ? 'bg-black' : 'bg-white'} p-2 rounded-md border-yellow-500 shadow-md hover:shadow-[0_4px_15px_rgba(255,215,0,0.4)] transition-shadow duration-300`}>
             <h2 className="text-yellow-400 text-lg font-bold mb-4">Client Tree</h2>
             <ClientTree clients={clientData} level={1} />
           </div>
+
+          {/* Per Page + Pagination below the tree */}
+          <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4 w-full">
+            {/* Per Page */}
+            <div className="flex items-center gap-2">
+              <label className="text-yellow-400 text-sm font-semibold">Per Page:</label>
+              <select
+                value={perPage}
+                onChange={(e) => setPerPage(Number(e.target.value))}
+                className={`${isDarkMode ? 'bg-black' : 'bg-white'} text-yellow-300 border border-yellow-500 rounded-md px-2 py-1 focus:outline-none`}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                className="flex items-center justify-center bg-yellow-500 text-black px-2 py-1 rounded-md hover:bg-yellow-400 shadow-md transition-all"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <span className="text-yellow-300 font-semibold text-sm">Page {currentPage} of {totalPages} ({totalClients} clients)</span>
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                className="flex items-center justify-center bg-yellow-500 text-black px-2 py-1 rounded-md hover:bg-yellow-400 shadow-md transition-all"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
         </>
       )}
-      {/* Per Page + Pagination below the tree */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4 w-full">
-        {/* Per Page */}
-        <div className="flex items-center gap-2">
-          <label className="text-yellow-400 text-sm font-semibold">Per Page:</label>
-          <select className={`${isDarkMode ? 'bg-black' : 'bg-white'} text-yellow-300 border border-yellow-500 rounded-md px-2 py-1 focus:outline-none`}>
-            <option>10</option>
-            <option>20</option>
-            <option>50</option>
-            <option>100</option>
-          </select>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex items-center gap-3">
-          <button className="flex items-center justify-center bg-yellow-500 text-black px-2 py-1 rounded-md hover:bg-yellow-400 shadow-md transition-all">
-            <ChevronLeft size={16} />
-          </button>
-          <span className="text-yellow-300 font-semibold text-sm">Page 1 of 10</span>
-          <button className="flex items-center justify-center bg-yellow-500 text-black px-2 py-1 rounded-md hover:bg-yellow-400 shadow-md transition-all">
-            <ChevronRight size={16} />
-          </button>
-        </div>
-      </div>
     
 
     {/* Add User Form Modal */}
@@ -826,6 +928,8 @@ const App = () => {
     </div>
   </div>
 )}
+
+      
 
 
     </div>

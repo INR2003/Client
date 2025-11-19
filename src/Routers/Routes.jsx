@@ -19,6 +19,7 @@ import TradingViewFullscreen from "../pages/TradingViewFullscreen";
 import PammAccount from "../pages/PammAccount";
 import DemoAccountsPage from "../pages/DemoAccountsPage";
 import Login from "../pages/Login";
+import Ibrequest from "../pages/Ibrequest";
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -55,6 +56,7 @@ const AppRoutes = () => {
             <Route path="/tradingviewpage" element={<TradingViewFullscreen />} />
             <Route path="/demoAccounts" element={<DemoAccountsPage />} />
             <Route path="/PammAccount" element={<PammAccount />} />
+            <Route path="/ibrequest" element={<Ibrequest />} />
             <Route path="*" element={<Dashboard />} />
           </Routes>
         </Main>
